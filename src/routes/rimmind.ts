@@ -35,12 +35,12 @@ console.log(`email recevied from app is ${email}`);
         const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
         if (existingUser.rows.length > 0) {
-            return res.status(200).send('Welcome back');
+            return res.status(200).send('exists');
         }
 
         const result = await pool.query('INSERT INTO users (email) VALUES ($1)', [email]);
 
-        return res.status(200).send('A fresh Started?');
+        return res.status(200).send('new');
     } catch (error) {
         console.error('Error inserting data:', error);
         res.status(500).send('Internal Server Error');
