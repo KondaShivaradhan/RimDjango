@@ -1,0 +1,19 @@
+{
+    "type": "postgres",
+    "host": "ep-steep-poetry-31551584.us-east-2.aws.neon.tech",
+    "port": 5432,
+    "username": "kondashivaradhan007",
+    "password": "TqMtHaiLCZ57",
+    "database": "rimmindDB",
+    "synchronize": true, 
+    "logging": true,
+    "entities": ["src/entities/*.ts"],
+    "migrations": ["src/migrations/*.ts"],
+    "subscribers": ["src/subscribers/*.ts"],
+    "cli": {
+      "entitiesDir": "src/entities",
+      "migrationsDir": "src/migrations",
+      "subscribersDir": "src/subscribers"
+    }
+  }
+  
