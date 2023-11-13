@@ -107,12 +107,7 @@ router.delete('/', async (req: Request, res: Response) => {
 
 });
 // edit record
-export interface FormValues {
-    user: string
-    title: string;
-    desp: string;
-    TagArray: string[];
-}
+
 router.put('/', async (req: Request, res: Response) => {
     console.log("came to update record");
     const id = req.query.id as string;
