@@ -42,7 +42,7 @@ export function writeDataToCloud(data:cloudWrite): void {
     const cloudConnectionString = 'postgresql://kondashivaradhan007:TqMtHaiLCZ57@ep-steep-poetry-31551584.us-east-2.aws.neon.tech:5432/rimmindDB?ssl=true';
 
     const writeCommand = `psql "${cloudConnectionString}" -c "INSERT INTO userrecords (user_email_id, title, description, tags, media)
-     VALUES ('${data.id}','${data.title}','${data.desp}','${data.TagArray}','null');"`;
+     VALUES ('${data.id}','${data.title}','${data.desp}','{${data.TagArray}}','null');"`;
 
     const childProcess = exec(writeCommand, (error, stdout, stderr) => {
         if (error) {
