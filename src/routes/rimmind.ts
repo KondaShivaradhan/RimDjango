@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import pool from '../postdb'
 import { CheckID, validate } from '../Misc/CommonFunctions';
 import { log } from 'console';
+import { cloudWrite, writeDataToCloud } from '../Misc/Children/CloudWrite';
 var no_of_writes = 0
 const router = Router();
 // get All records
@@ -77,13 +78,21 @@ router.post('/add', async (req: Request, res: Response) => {
         await pool.query(insertQuery, insertValues);
 
         await pool.query('COMMIT');
-        console.log("inserted");
+        console.log("inserted into local");
         no_of_writes++
-        if(no_of_writes>1){
-            
-        }
+       
         console.log(`current no of record inserted ${no_of_writes}`);
-        return res.json({ message: 'Data added successfully' });
+        res.json({ message: 'Data added successfully' });
+        const data:cloudWrite = {
+            id:userId,
+            title:title, user:user, desp:desp, TagArray:TagArray
+        }
+        if (no_of_writes > 1) {
+            // time to backup data!
+            writeDataToCloud(data);
+
+        }
+        return null
     } catch (error) {
         await pool.query('ROLLBACK');
         throw error;
@@ -132,7 +141,7 @@ router.put('/', async (req: Request, res: Response) => {
             return res.status(404).send('User not found');
         }
     } catch (error) {
-        
+
         console.error('Error updating user record:', error);
         res.status(500).send('Internal Server Error');
     }

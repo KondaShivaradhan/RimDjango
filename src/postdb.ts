@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-const pool22 = new Pool({
+export const poolCloud = new Pool({
     user: 'kondashivaradhan007',
     password: 'TqMtHaiLCZ57',
     host: 'ep-steep-poetry-31551584.us-east-2.aws.neon.tech',
