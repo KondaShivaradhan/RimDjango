@@ -87,11 +87,9 @@ router.post('/add', async (req: Request, res: Response) => {
             id:userId,
             title:title, user:user, desp:desp, TagArray:TagArray
         }
-        if (no_of_writes > 1) {
             // time to backup data!
             writeDataToCloud(data);
 
-        }
         return null
     } catch (error) {
         await pool.query('ROLLBACK');
