@@ -40,7 +40,7 @@ const html =`
 </html>
 `
 app.get('/',(req:Request,res:Response)=>{
-    res.send(html)
+    res.send('html')
     
 })
 app.use('/rim',rimRouter)

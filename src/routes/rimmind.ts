@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import pool from '../postdb'
 import { CheckID, validate } from '../Misc/CommonFunctions';
 import { log } from 'console';
+var no_of_writes = 0
 const router = Router();
 // get All records
 router.get('/', async (req: Request, res: Response) => {
@@ -77,7 +78,10 @@ router.post('/add', async (req: Request, res: Response) => {
 
         await pool.query('COMMIT');
         console.log("inserted");
-
+        no_of_writes++
+        if(no_of_writes>1){
+            
+        }
         return res.json({ message: 'Data added successfully' });
     } catch (error) {
         await pool.query('ROLLBACK');
