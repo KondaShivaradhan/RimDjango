@@ -82,6 +82,7 @@ router.post('/add', async (req: Request, res: Response) => {
         if(no_of_writes>1){
             
         }
+        console.log(`current no of record inserted ${no_of_writes}`);
         return res.json({ message: 'Data added successfully' });
     } catch (error) {
         await pool.query('ROLLBACK');
