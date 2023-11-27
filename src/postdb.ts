@@ -11,7 +11,7 @@ const pool22 = new Pool({
 const pool = new Pool({
     user: 'postgres',
     password: 'new_password',
-    host: '192.168.1.10',
+    host: '127.0.0.1',
     port: 5432,
     database: 'rimmindDB',
     ssl: { rejectUnauthorized: false }, 
