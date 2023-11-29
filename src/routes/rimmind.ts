@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import pool from '../postdb'
 import { CheckID, validate } from '../Misc/CommonFunctions';
 import { log } from 'console';
-import { CreateUserInCloud, cloudWrite, writeDataToCloud } from '../Misc/Children/CloudWrite';
+import { CreateUserInCloud, EditRecordInCloud, cloudWrite, writeDataToCloud } from '../Misc/Children/CloudWrite';
 var no_of_writes = 0
 const router = Router();
 // get All records
@@ -45,6 +45,7 @@ router.post('/', async (req: Request, res: Response) => {
         res.status(200).send('new');
       
         CreateUserInCloud(email)
+        return null
     } catch (error) {
         console.error('Error inserting data:', error);
         res.status(500).send('Internal Server Error');
@@ -135,7 +136,15 @@ router.put('/', async (req: Request, res: Response) => {
 
         if (result.rowCount && result.rowCount > 0) {
             // If rowCount is greater than 0, the update was successful
-            return res.status(200).send('updated');
+
+            res.status(200).send('updated');
+           
+            const data = {
+                id:userId,
+                title:title,  desp:desp, TagArray:TagArray,
+                user:""
+            }
+            EditRecordInCloud(data)
         } else {
             // If rowCount is 0, no record was updated (user with the given ID not found)
             return res.status(404).send('User not found');
