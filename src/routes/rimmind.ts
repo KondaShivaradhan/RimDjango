@@ -140,7 +140,7 @@ router.put('/', async (req: Request, res: Response) => {
             res.status(200).send('updated');
            
             const data = {
-                id:userId,
+                id:id,
                 title:title,  desp:desp, TagArray:TagArray,
                 user:""
             }
