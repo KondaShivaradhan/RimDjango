@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import pool from '../postdb'
 import { CheckID, validate } from '../Misc/CommonFunctions';
 import { log } from 'console';
-import { cloudWrite, writeDataToCloud } from '../Misc/Children/CloudWrite';
+import { CreateUserInCloud, cloudWrite, writeDataToCloud } from '../Misc/Children/CloudWrite';
 var no_of_writes = 0
 const router = Router();
 // get All records
@@ -29,7 +29,7 @@ router.get('/', async (req: Request, res: Response) => {
 // create user  
 router.post('/', async (req: Request, res: Response) => {
     console.log("came to login");
-
+    
     try {
         const { email } = req.body;
         console.log(`email recevied from app is ${email}`);
@@ -42,7 +42,9 @@ router.post('/', async (req: Request, res: Response) => {
 
         const result = await pool.query('INSERT INTO users (email) VALUES ($1)', [email]);
 
-        return res.status(200).send('new');
+        res.status(200).send('new');
+      
+        CreateUserInCloud(email)
     } catch (error) {
         console.error('Error inserting data:', error);
         res.status(500).send('Internal Server Error');
