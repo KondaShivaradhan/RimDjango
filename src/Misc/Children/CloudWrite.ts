@@ -12,7 +12,7 @@ export interface cloudWrite {
 // creating user in cloud
 export function CreateUserInCloud(email:string):void{
     try {
-        console.log(`email recevied from app is ${email}`);
+        console.log(`trying to insert a new user into cloud ${email}`);
 
 
         // asdfa
@@ -22,7 +22,7 @@ export function CreateUserInCloud(email:string):void{
     
         const childProcess = exec(writeCommand, (error, stdout, stderr) => {
             if (error) {
-                console.error(`Error writing to cloud database: ${error}`);
+                console.error(`Error writing new user to cloud database: ${error}`);
             } else {
                 console.log('Write New user to cloud database complete.');
             }
@@ -30,16 +30,15 @@ export function CreateUserInCloud(email:string):void{
     
         childProcess.unref();
     } catch (error) {
-        console.error('Error inserting data into the cloud', error);
+        console.error('Error inserting user into the cloud', error);
         
     }
 }
 // editing record in cloud
-
 export function EditRecordInCloud(data:cloudWrite): void {
 
     const { id ,title, desp, TagArray } = data;
-    console.log(`come here to insert the record into cloud from userrecord with id - ${id}`);
+    console.log(`come here to Edit the record into cloud from userrecord with id - ${id}`);
    
     const cloudConnectionString = 'postgresql://kondashivaradhan007:TqMtHaiLCZ57@ep-steep-poetry-31551584.us-east-2.aws.neon.tech:5432/rimmindDB?ssl=true';
 
@@ -54,8 +53,8 @@ export function EditRecordInCloud(data:cloudWrite): void {
     });
 
     childProcess.unref();
-}
-
+} 
+// inserting a record in cloud
 export function writeDataToCloud(data:cloudWrite): void {
 
 
@@ -102,3 +101,23 @@ export function writeDataToCloud(data:cloudWrite): void {
     childProcess.unref();
 }
 
+//deleting a record in cloud
+export function deleteinCloud(data:cloudWrite):void{
+    const { id ,title, user, desp, TagArray } = data;
+    console.log(`come here to delete the record into cloud from userrecord with id - ${id}`);
+   
+   
+    const cloudConnectionString = 'postgresql://kondashivaradhan007:TqMtHaiLCZ57@ep-steep-poetry-31551584.us-east-2.aws.neon.tech:5432/rimmindDB?ssl=true';
+
+    const writeCommand = `psql "${cloudConnectionString}" -c "DELETE FROM userrecords WHERE id = '${id}';"`;
+
+    const childProcess = exec(writeCommand, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error deleting a record in database: ${error}`);
+        } else {
+            console.log('deleting a record in cloud database complete.');
+        }
+    });
+
+    childProcess.unref();
+}

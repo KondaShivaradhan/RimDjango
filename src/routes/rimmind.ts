@@ -111,7 +111,14 @@ router.delete('/', async (req: Request, res: Response) => {
 
         // Check if any row was deleted
         if (deleteResult.rowCount && deleteResult.rowCount > 0) {
-            return res.status(200).json({ message: 'Record deleted successfully' });
+            res.status(200).json({ message: 'Record deleted successfully' });
+            const data = {
+                id:id,
+                title:title,  desp:desp, TagArray:TagArray,
+                user:""
+            }
+            EditRecordInCloud(data)
+            return null
         } else {
             return res.status(404).json({ message: 'Record not found' });
         }
