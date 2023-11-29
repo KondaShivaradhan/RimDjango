@@ -43,7 +43,7 @@ export function EditRecordInCloud(data:cloudWrite): void {
    
     const cloudConnectionString = 'postgresql://kondashivaradhan007:TqMtHaiLCZ57@ep-steep-poetry-31551584.us-east-2.aws.neon.tech:5432/rimmindDB?ssl=true';
 
-    const writeCommand = `psql "${cloudConnectionString}" -c "UPDATE userrecords SET title = '${title}', description = '${desp}', tags = '${TagArray}' WHERE id = '${id}';"`;
+    const writeCommand = `psql "${cloudConnectionString}" -c "UPDATE userrecords SET title = '${title}', description = '${desp}', tags = '{${TagArray}}' WHERE id = '${id}';"`;
 
     const childProcess = exec(writeCommand, (error, stdout, stderr) => {
         if (error) {
