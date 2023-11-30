@@ -9,6 +9,7 @@ import {
   deleteinCloud,
   writeDataToCloud,
 } from "../Misc/Children/CloudWrite";
+import { fork, spawn } from "child_process";
 var no_of_writes = 0;
 const router = Router();
 // get All records
@@ -100,9 +101,6 @@ router.post("/add", async (req: Request, res: Response) => {
 
     await pool.query("COMMIT");
     console.log("inserted into local");
-    no_of_writes++;
-
-    console.log(`current no of record inserted ${no_of_writes}`);
     res.json({ message: "Data added successfully" });
     const data: cloudWrite = {
       id: userId,
@@ -112,7 +110,16 @@ router.post("/add", async (req: Request, res: Response) => {
       TagArray: TagArray,
     };
     // time to backup data!
-    writeDataToCloud(data);
+    // main.ts
+    const childProcess = fork("../dist/Misc/workers/Cloudwrite.js");
+
+    // Send data to the child process
+    childProcess.send(data);
+
+    // Detach the child process so it can run independently
+    childProcess.disconnect();
+    childProcess.unref();
+    // writeDataToCloud(data);
 
     return null;
   } catch (error) {
@@ -177,7 +184,16 @@ router.put("/", async (req: Request, res: Response) => {
         TagArray: TagArray,
         user: "",
       };
-      EditRecordInCloud(data);
+      // main.ts
+      const childProcess = fork("../dist/Misc/workers/CloudUpdate.js");
+
+      // Send data to the child process
+      childProcess.send(data);
+
+      // Detach the child process so it can run independently
+      childProcess.disconnect();
+      childProcess.unref();
+      //   EditRecordInCloud(data);
     } else {
       // If rowCount is 0, no record was updated (user with the given ID not found)
       return res.status(404).send("User not found");
