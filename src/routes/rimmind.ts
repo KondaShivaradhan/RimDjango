@@ -31,7 +31,7 @@ router.get("/", async (req: Request, res: Response) => {
       "SELECT * FROM userrecords WHERE user_email_id = $1",
       [existingUser.rows[0].id]
     );
-    console.log(userRecords.rows);
+    console.log(`Send all records for ${email}`);
 
     return res.status(200).send(userRecords.rows);
   } catch (error) {}
@@ -69,10 +69,7 @@ router.post("/", async (req: Request, res: Response) => {
 });
 // Upload
 router.post("/add", async (req: Request, res: Response) => {
-  const id = req.query.id as string;
-
-  console.log(`come here to delete the record from userrecord with id - ${id}`);
-
+  console.log(`come here to insert the record into local datase`);
   const { title, user, desp, TagArray } = req.body;
   try {
     await pool.query("BEGIN");
@@ -86,16 +83,23 @@ router.post("/add", async (req: Request, res: Response) => {
       // User not found, you may want to handle this case
       return res.status(404).json({ message: "User not found" });
     }
+    // get uuid for this record
+    const { v4: uuidv4 } = require("uuid");
+
+    // Generate a UUID
+    const uniqueId = uuidv4();
+
+    console.log(uniqueId);
 
     const userId = userQueryResult.rows[0].id;
 
     // Inserting data into "UserRecords" table
     const insertQuery = `
-          INSERT INTO "userrecords" (user_email_id, title, description, tags, media)
-          VALUES ($1, $2, $3, $4, $5)
+          INSERT INTO "userrecords" (user_email_id, title, description, tags, media,ruid)
+          VALUES ($1, $2, $3, $4, $5,$6)
         `;
 
-    const insertValues = [userId, title, desp, TagArray, null]; // Assuming media is not included in this example
+    const insertValues = [userId, title, desp, TagArray, null, uniqueId]; // Assuming media is not included in this example
 
     await pool.query(insertQuery, insertValues);
 
@@ -103,11 +107,11 @@ router.post("/add", async (req: Request, res: Response) => {
     console.log("inserted into local");
     res.json({ message: "Data added successfully" });
     const data: cloudWrite = {
-      id: userId,
       title: title,
-      user: user,
+      userid: user,
       desp: desp,
       TagArray: TagArray,
+      ruid: uniqueId,
     };
     // time to backup data!
     // main.ts
@@ -129,25 +133,21 @@ router.post("/add", async (req: Request, res: Response) => {
 });
 // Delete Record
 router.delete("/", async (req: Request, res: Response) => {
-  const id = req.query.id as string;
-  console.log(`Came to delete the record with id - ${id}`);
+  const ruid = req.query.ruid as string;
+  console.log(`Came to delete the record with ruid - ${ruid}`);
   const { title, user, desp, TagArray } = req.body;
   try {
-    // Delete the row from the 'userrecords' table based on the provided 'id'
+    // Delete the row from the 'userrecords' table based on the provided 'ruid'
     const deleteResult = await pool.query(
-      "DELETE FROM userrecords WHERE id = $1",
-      [id]
+      "DELETE FROM userrecords WHERE ruid = $1",
+      [ruid]
     );
 
     // Check if any row was deleted
     if (deleteResult.rowCount && deleteResult.rowCount > 0) {
       res.status(200).json({ message: "Record deleted successfully" });
       const data = {
-        id: id,
-        title: title,
-        desp: desp,
-        TagArray: TagArray,
-        user: "",
+        ruid: ruid,
       };
       deleteinCloud(data);
       return null;
@@ -163,13 +163,12 @@ router.delete("/", async (req: Request, res: Response) => {
 
 router.put("/", async (req: Request, res: Response) => {
   console.log("came to update record");
-  const id = req.query.id as string;
+  const ruid = req.query.ruid as string;
   try {
-    const userId = req.params.id;
     const { title, desp, TagArray } = req.body;
     const result = await pool.query(
-      "UPDATE userrecords SET title = $1, description = $2, tags = $3 WHERE id = $4",
-      [title, desp, TagArray, id]
+      "UPDATE userrecords SET title = $1, description = $2, tags = $3 WHERE ruid = $4",
+      [title, desp, TagArray, ruid]
     );
 
     if (result.rowCount && result.rowCount > 0) {
@@ -178,7 +177,7 @@ router.put("/", async (req: Request, res: Response) => {
       res.status(200).send("updated");
 
       const data = {
-        id: id,
+        ruid: ruid,
         title: title,
         desp: desp,
         TagArray: TagArray,

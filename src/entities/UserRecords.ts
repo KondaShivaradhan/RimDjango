@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { User } from './User';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { User } from "./User";
+import { UUID } from "typeorm/driver/mongodb/bson.typings";
 
 @Entity()
 export class UserRecords {
@@ -15,9 +16,11 @@ export class UserRecords {
   @Column()
   description!: string;
 
-  @Column('varchar', { array: true })
+  @Column("varchar", { array: true })
   tags!: string[];
 
-  @Column('varchar', { array: true, nullable: true })
+  @Column("varchar", { array: true, nullable: true })
   media!: string[];
+  @Column("uuid", { unique: true, nullable: false })
+  ruid!: UUID;
 }
