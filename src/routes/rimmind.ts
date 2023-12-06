@@ -28,13 +28,18 @@ router.get("/", async (req: Request, res: Response) => {
     console.log("fethicng this uers data");
 
     const userRecords = await pool.query(
-      "SELECT * FROM userrecords WHERE user_email_id = $1",
+      "SELECT * FROM userrecords WHERE userID = $1",
       [existingUser.rows[0].id]
     );
     console.log(`Send all records for ${email}`);
+    console.log("printing all");
+
+    console.log(userRecords.rows);
 
     return res.status(200).send(userRecords.rows);
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
   res.json({ message: `Received email: ${email}` });
 });
 // create user
@@ -95,7 +100,7 @@ router.post("/add", async (req: Request, res: Response) => {
 
     // Inserting data into "UserRecords" table
     const insertQuery = `
-          INSERT INTO "userrecords" (user_email_id, title, description, tags, media,ruid)
+          INSERT INTO "userrecords" (userID, title, description, tags, media,ruid)
           VALUES ($1, $2, $3, $4, $5,$6)
         `;
 
@@ -113,18 +118,11 @@ router.post("/add", async (req: Request, res: Response) => {
       TagArray: TagArray,
       ruid: uniqueId,
     };
-    // time to backup data!
-    // main.ts
+    // time to backup data
     const childProcess = fork("../dist/Misc/workers/Cloudwrite.js");
-
-    // Send data to the child process
     childProcess.send(data);
-
-    // Detach the child process so it can run independently
     childProcess.disconnect();
     childProcess.unref();
-    // writeDataToCloud(data);
-
     return null;
   } catch (error) {
     await pool.query("ROLLBACK");
