@@ -8,7 +8,7 @@ const poolCloud = new Pool({
 });
 
 interface cloudWrite {
-  id: string;
+  ruid: string;
   title: string;
   user: string;
   desp: string;
@@ -20,15 +20,15 @@ process.on("message", async (data: cloudWrite) => {
 });
 
 async function EditDatatoCloud(data: cloudWrite): Promise<void> {
-  const { id, title, user, desp, TagArray } = data;
+  const { ruid, title, user, desp, TagArray } = data;
   console.log(
-    `come here to update the record into the cloud from user record with id - ${id}`
+    `come here to update the record into the cloud from user record with ruid - ${ruid}`
   );
 
   try {
     const result = await poolCloud.query(
-      "UPDATE userrecords SET title = $1, description = $2, tags = $3 WHERE id = $4",
-      [title, desp, TagArray, id]
+      "UPDATE userrecords SET title = $1, description = $2, tags = $3 WHERE ruid = $4",
+      [title, desp, TagArray, ruid]
     );
 
     console.log("Updated into the cloud");

@@ -75,7 +75,7 @@ router.post("/", async (req: Request, res: Response) => {
 // Upload
 router.post("/add", async (req: Request, res: Response) => {
   console.log(`come here to insert the record into local datase`);
-  const { title, user, desp, TagArray } = req.body;
+  const { title, user, desp, TagArray, media } = req.body;
   try {
     await pool.query("BEGIN");
     // Assuming "User" table has 'id' as primary key
@@ -104,7 +104,7 @@ router.post("/add", async (req: Request, res: Response) => {
           VALUES ($1, $2, $3, $4, $5,$6)
         `;
 
-    const insertValues = [userId, title, desp, TagArray, null, uniqueId]; // Assuming media is not included in this example
+    const insertValues = [userId, title, desp, TagArray, media, uniqueId]; // Assuming media is not included in this example
 
     await pool.query(insertQuery, insertValues);
 
@@ -199,6 +199,15 @@ router.put("/", async (req: Request, res: Response) => {
     console.error("Error updating user record:", error);
     res.status(500).send("Internal Server Error");
   }
+});
+router.get("/sync", (req: Request, res: Response) => {
+  // main.ts
+  const childProcess = fork("../dist/Misc/Sync/CloudSync.js");
+
+  // Detach the child process so it can run independently
+  childProcess.disconnect();
+  childProcess.unref();
+  res.send("Sync Completed");
 });
 router.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).send("Wrong URL");

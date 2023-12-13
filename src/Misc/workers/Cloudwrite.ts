@@ -22,7 +22,7 @@ process.on("message", async (data: cloudWrite) => {
 async function writeDataToCloud(data: cloudWrite): Promise<void> {
   const { id, title, user, desp, TagArray } = data;
   console.log(
-    `come here to insert the record into the cloud from user record with id - ${id}`
+    `come here to insert the record into the cloud from user record with ruid - ${id}`
   );
 
   try {
