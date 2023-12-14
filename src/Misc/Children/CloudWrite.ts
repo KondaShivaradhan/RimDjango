@@ -7,6 +7,7 @@ export interface cloudWrite {
   userid: string;
   desp: string;
   ruid: UUID;
+  media: any[];
   TagArray: string;
 }
 // haElMPY70TOc

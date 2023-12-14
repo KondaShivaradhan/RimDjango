@@ -1,7 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
 import pool from "../postdb";
-import { CheckID, validate } from "../Misc/CommonFunctions";
-import { log } from "console";
 import {
   CreateUserInCloud,
   EditRecordInCloud,
@@ -10,8 +8,11 @@ import {
   writeDataToCloud,
 } from "../Misc/Children/CloudWrite";
 import { fork, spawn } from "child_process";
-var no_of_writes = 0;
+import { log } from "console";
+var AppVersion: string = "";
+var APKURL: string = "";
 const router = Router();
+
 // get All records
 router.get("/", async (req: Request, res: Response) => {
   const email = req.query.email as string;
@@ -113,10 +114,11 @@ router.post("/add", async (req: Request, res: Response) => {
     res.json({ message: "Data added successfully" });
     const data: cloudWrite = {
       title: title,
-      userid: user,
+      userid: userId,
       desp: desp,
       TagArray: TagArray,
       ruid: uniqueId,
+      media: media,
     };
     // time to backup data
     const childProcess = fork("../dist/Misc/workers/Cloudwrite.js");
@@ -200,6 +202,7 @@ router.put("/", async (req: Request, res: Response) => {
     res.status(500).send("Internal Server Error");
   }
 });
+// sync database
 router.get("/sync", (req: Request, res: Response) => {
   // main.ts
   const childProcess = fork("../dist/Misc/Sync/CloudSync.js");
@@ -208,6 +211,35 @@ router.get("/sync", (req: Request, res: Response) => {
   childProcess.disconnect();
   childProcess.unref();
   res.send("Sync Completed");
+});
+router.get("/setver", (req: Request, res: Response) => {
+  const ver = req.query.ver as string;
+  AppVersion = ver;
+  res.send(`Came to change the version from ${AppVersion} to  ${ver}`);
+});
+// application version
+router.get("/getver", async (req: Request, res: Response) => {
+  const ver = req.query.ver as string;
+  console.log(
+    `Came to check the Appversion - ${ver} with latest version ${AppVersion}`
+  );
+
+  if (AppVersion === ver) {
+    res.send({ status: true });
+  } else {
+    res.send({ status: false });
+  }
+});
+router.get("/setapk", (req: Request, res: Response) => {
+  const url = req.query.url as string;
+  console.log(`Came to change the apk url from ${APKURL} to  ${url}`);
+
+  APKURL = url;
+  res.send(APKURL);
+});
+router.get("/getapk", async (req: Request, res: Response) => {
+  console.log(`Came to send the APK URL`);
+  res.send(APKURL);
 });
 router.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).send("Wrong URL");

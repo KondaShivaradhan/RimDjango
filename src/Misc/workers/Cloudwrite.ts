@@ -8,11 +8,13 @@ const poolCloud = new Pool({
 });
 
 interface cloudWrite {
-  id: string;
+  userid: string;
   title: string;
   user: string;
   desp: string;
   TagArray: string[];
+  media: any[];
+  ruid: string;
 }
 
 process.on("message", async (data: cloudWrite) => {
@@ -20,24 +22,24 @@ process.on("message", async (data: cloudWrite) => {
 });
 
 async function writeDataToCloud(data: cloudWrite): Promise<void> {
-  const { id, title, user, desp, TagArray } = data;
+  const { userid, title, user, desp, TagArray, media, ruid } = data;
   console.log(
-    `come here to insert the record into the cloud from user record with ruid - ${id}`
+    `come here to insert the record into the cloud from user record with userid - ${userid}`
   );
 
   try {
-    const userQueryResult = await poolCloud.query(
-      'SELECT id FROM "users" WHERE email = $1',
-      [user]
-    );
-    const userId = userQueryResult.rows[0].id;
+    // const userQueryResult = await poolCloud.query(
+    //   'SELECT id FROM "users" WHERE email = $1',
+    //   [user]
+    // );
+    // const userId = userQueryResult.rows[0].id;
 
     const insertQuery = `
-            INSERT INTO "userrecords" (user_email_id, title, description, tags, media)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO "userrecords" (userid, title, description, tags, media,ruid)
+            VALUES ($1, $2, $3, $4, $5,$6)
         `;
 
-    const insertValues = [userId, title, desp, TagArray, null];
+    const insertValues = [userid, title, desp, TagArray, media, ruid];
 
     await poolCloud.query(insertQuery, insertValues);
 
