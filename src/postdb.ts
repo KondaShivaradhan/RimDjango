@@ -7,6 +7,7 @@ export const poolCloud = new Pool({
   host: "ep-steep-poetry-31551584.us-east-2.aws.neon.tech",
   port: 5432,
   database: "rimmindDB",
+  // ssl: { rejectUnauthorized: false },
   ssl: { rejectUnauthorized: false },
 });
 const pool = new Pool({
@@ -17,7 +18,8 @@ const pool = new Pool({
   database: "rimmindDB",
   // haElMPY70TOc
   //   TqMtHaiLCZ57
-  ssl: { rejectUnauthorized: false },
+  // ssl: { rejectUnauthorized: false },
+  ssl: false,
 });
 
 export default pool;
