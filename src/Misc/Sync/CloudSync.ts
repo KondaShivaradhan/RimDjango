@@ -45,6 +45,7 @@ async function performBackup() {
 }
 // "PGPASSWORD=haElMPY70TOc pg_dump -U postgres -h ep-steep-poetry-31551584.us-east-2.aws.neon.tech -p 5432 -d rimmindDB > local_dump.sql";
 // "PGPASSWORD=new_password psql -U postgres -h 127.0.0.1 -p 5432 -d rimmindDB -f local_dump.sql";
+// "PGPASSWORD=new_password psql -U postgres -h 192.168.1.3 -p 5432 -d rimmindDB -f local_new.sql";
 
 async function performRestore() {
   const psqlRestoreCommand =
