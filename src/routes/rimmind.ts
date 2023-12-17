@@ -165,10 +165,10 @@ router.put("/", async (req: Request, res: Response) => {
   console.log("came to update record");
   const ruid = req.query.ruid as string;
   try {
-    const { title, desp, TagArray } = req.body;
+    const { title, desp, TagArray, media } = req.body;
     const result = await pool.query(
-      "UPDATE userrecords SET title = $1, description = $2, tags = $3 WHERE ruid = $4",
-      [title, desp, TagArray, ruid]
+      "UPDATE userrecords SET title = $1, description = $2, tags = $3,media=$4 WHERE ruid = $5",
+      [title, desp, TagArray, media, ruid]
     );
 
     if (result.rowCount && result.rowCount > 0) {

@@ -2,11 +2,19 @@
 
 import { Pool } from "pg";
 
+// const poolCloud = new Pool({
+//   connectionString:
+//     "postgresql://kondashivaradhan007:TqMtHaiLCZ57@ep-steep-poetry-31551584.us-east-2.aws.neon.tech:5432/rimmindDB?ssl=true",
+// });
 const poolCloud = new Pool({
-  connectionString:
-    "postgresql://kondashivaradhan007:TqMtHaiLCZ57@ep-steep-poetry-31551584.us-east-2.aws.neon.tech:5432/rimmindDB?ssl=true",
+  user: "postgres",
+  password: "haElMPY70TOc",
+  host: "ep-steep-poetry-31551584.us-east-2.aws.neon.tech",
+  port: 5432,
+  database: "rimmindDB",
+  // ssl: { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: false },
 });
-
 interface cloudWrite {
   userid: string;
   title: string;
