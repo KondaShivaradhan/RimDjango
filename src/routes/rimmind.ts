@@ -149,7 +149,11 @@ router.delete("/", async (req: Request, res: Response) => {
       const data = {
         ruid: ruid,
       };
-      deleteinCloud(data);
+      // time to backup data
+      const childProcess = fork("../dist/Misc/workers/CloudDelete.js");
+      childProcess.send(data);
+      childProcess.disconnect();
+      childProcess.unref();
       return null;
     } else {
       return res.status(404).json({ message: "Record not found" });
