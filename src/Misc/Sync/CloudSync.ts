@@ -28,7 +28,7 @@ async function deleteTables() {
 
 async function performBackup() {
   const pgDumpCommand =
-    "PGPASSWORD=new_password pg_dump -U postgres -h 127.0.0.1 -p 5432 -d rimmindDB > local_dump.sql";
+    "PGPASSWORD=new_password pg_dump -U postgres -h 192.168.1.3 -p 5432 -d rimmindDB > local_dump.sql";
 
   return new Promise<void>((resolve) => {
     exec(pgDumpCommand, (error, stdout, stderr) => {
