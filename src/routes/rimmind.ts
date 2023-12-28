@@ -216,10 +216,27 @@ router.get("/sync", (req: Request, res: Response) => {
   childProcess.unref();
   res.send("Sync Completed");
 });
-router.get("/setver", (req: Request, res: Response) => {
+router.get("/setver", async (req: Request, res: Response) => {
   const ver = req.query.ver as string;
-  AppVersion = ver;
-  res.send(`Came to change the version from ${AppVersion} to  ${ver}`);
+  const selectQuery = `
+      Select * from Misc;
+    `;
+  const result2 = await pool.query(selectQuery);
+  if (result2.rowCount != null && result2.rowCount > 0) {
+    const insertQuery = `
+          UPDATE misc SET version=$1 WHERE ctid = (SELECT ctid FROM misc LIMIT 1);
+        `;
+    const result = await pool.query(insertQuery, [ver]);
+    console.log(result.rows);
+  } else {
+    const insertQuery = `
+          INSERT INTO Misc (version)
+      VALUES ($1);
+        `;
+    const result = await pool.query(insertQuery, [ver]);
+    console.log(result.rows);
+  }
+  res.send(`Came to change the version to ${ver}`);
 });
 // application version
 router.get("/getver", async (req: Request, res: Response) => {
@@ -227,23 +244,44 @@ router.get("/getver", async (req: Request, res: Response) => {
   console.log(
     `Came to check the Appversion - ${ver} with latest version ${AppVersion}`
   );
-
-  if (AppVersion === ver) {
-    res.send({ status: true });
-  } else {
-    res.send({ status: false });
-  }
+  const selectQuery = `
+      Select * from Misc;
+    `;
+  const result2 = await pool.query(selectQuery);
+  res.send({ status: result2.rows[0].version === ver });
 });
-router.get("/setapk", (req: Request, res: Response) => {
+router.get("/setapk", async (req: Request, res: Response) => {
   const url = req.query.url as string;
   console.log(`Came to change the apk url from ${APKURL} to  ${url}`);
 
   APKURL = url;
-  res.send(APKURL);
+  const selectQuery = `
+      Select * from Misc;
+    `;
+  const result2 = await pool.query(selectQuery);
+  if (result2.rowCount != null && result2.rowCount > 0) {
+    const insertQuery = `
+          UPDATE misc SET apk_url=$1 WHERE ctid = (SELECT ctid FROM misc LIMIT 1);
+        `;
+    const result = await pool.query(insertQuery, [url]);
+    console.log(result.rows);
+  } else {
+    const insertQuery = `
+          INSERT INTO Misc (apk_url)
+      VALUES ($1);
+        `;
+    const result = await pool.query(insertQuery, [url]);
+    console.log(result.rows);
+  }
+  res.send("APK URL set to " + url);
 });
 router.get("/getapk", async (req: Request, res: Response) => {
   console.log(`Came to send the APK URL`);
-  res.send(APKURL);
+  const selectQuery = `
+      Select * from Misc;
+    `;
+  const result2 = await pool.query(selectQuery);
+  res.send(result2.rows[0].apk_url);
 });
 router.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).send("Wrong URL");
