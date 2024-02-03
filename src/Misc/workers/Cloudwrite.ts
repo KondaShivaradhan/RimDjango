@@ -36,12 +36,6 @@ async function writeDataToCloud(data: cloudWrite): Promise<void> {
   );
 
   try {
-    // const userQueryResult = await poolCloud.query(
-    //   'SELECT id FROM "users" WHERE email = $1',
-    //   [user]
-    // );
-    // const userId = userQueryResult.rows[0].id;
-
     const insertQuery = `
             INSERT INTO "userrecords" (userid, title, description, tags, media,ruid)
             VALUES ($1, $2, $3, $4, $5,$6)

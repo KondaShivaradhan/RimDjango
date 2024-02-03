@@ -1,14 +1,12 @@
 import { Router, Request, Response, NextFunction } from "express";
 import pool from "../postdb";
-import {
-  CreateUserInCloud,
-  EditRecordInCloud,
-  cloudWrite,
-  deleteinCloud,
-  writeDataToCloud,
-} from "../Misc/Children/CloudWrite";
-import { fork, spawn } from "child_process";
+import { CreateUserInCloud, cloudWrite } from "../Misc/Children/CloudWrite";
+import { fork } from "child_process";
+import axios from "axios";
+import fs from "fs";
+import { join } from "path";
 import { log } from "console";
+
 var AppVersion: string = "";
 var APKURL: string = "";
 const router = Router();
@@ -73,7 +71,11 @@ router.post("/", async (req: Request, res: Response) => {
     res.status(500).send("Internal Server Error");
   }
 });
-// Upload
+/**
+ * This route is for inserting a new record
+ * Takes users data and saves it in local and cloud storage
+ *
+ */
 router.post("/add", async (req: Request, res: Response) => {
   console.log(`come here to insert the record into local datase`);
   const { title, user, desp, TagArray, media } = req.body;
@@ -250,40 +252,48 @@ router.get("/getver", async (req: Request, res: Response) => {
   const result2 = await pool.query(selectQuery);
   res.send({ status: result2.rows[0].version === ver });
 });
+/**
+ * To download the apt file and save it from the expo build storage
+ * Fetches Appversion
+ */
+
 router.get("/setapk", async (req: Request, res: Response) => {
   const url = req.query.url as string;
-  console.log(`Came to change the apk url from ${APKURL} to  ${url}`);
 
-  APKURL = url;
-  const selectQuery = `
-      Select * from Misc;
-    `;
-  const result2 = await pool.query(selectQuery);
-  if (result2.rowCount != null && result2.rowCount > 0) {
-    const insertQuery = `
-          UPDATE misc SET apk_url=$1 WHERE ctid = (SELECT ctid FROM misc LIMIT 1);
-        `;
-    const result = await pool.query(insertQuery, [url]);
-    console.log(result.rows);
-  } else {
-    const insertQuery = `
-          INSERT INTO Misc (apk_url)
-      VALUES ($1);
-        `;
-    const result = await pool.query(insertQuery, [url]);
-    console.log(result.rows);
+  try {
+    // Download the APK file
+    const response = await axios.get(url, { responseType: "arraybuffer" });
+    const apkData = response.data;
+
+    // Save the APK file to a local path with the version-appended name
+    const localFilePath = join(__dirname, `rimmind.apk`);
+    fs.writeFileSync(localFilePath, Buffer.from(apkData));
+
+    res.send("downloaded the APk file and saved it here -> " + localFilePath);
+  } catch (error) {
+    console.error("Error downloading APK:", error);
+    res.status(500).send("Error downloading APK");
   }
-  res.send("APK URL set to " + url);
 });
+
 router.get("/getapk", async (req: Request, res: Response) => {
   console.log(`Came to send the APK URL`);
   const selectQuery = `
       Select * from Misc;
     `;
   const result2 = await pool.query(selectQuery);
-  res.send(result2.rows[0].apk_url);
+  const localFilePath = join(__dirname, `rimmind.apk`);
+  console.log(localFilePath);
+
+  res.sendFile(localFilePath, {
+    headers: {
+      "Content-Type": "application/vnd.android.package-archive",
+      "Content-Disposition": `attachment; filename=rimmind_${AppVersion}.apk`,
+    },
+  });
 });
 router.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).send("Wrong URL");
 });
+
 export default router;
