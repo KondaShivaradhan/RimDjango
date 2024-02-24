@@ -71,6 +71,8 @@ const authenticateToken = async (
         break;
 
       default:
+        console.error(" verification failed:");
+        res.status(401).json({ error: "Unauthorized" });
         break;
     }
   } catch (error) {
