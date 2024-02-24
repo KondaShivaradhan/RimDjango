@@ -5,16 +5,53 @@ import { fork } from "child_process";
 import axios from "axios";
 import fs from "fs";
 import { join } from "path";
-import { log } from "console";
-
+const admin = require("firebase-admin");
+admin.initializeApp({
+  credential: admin.credential.cert({
+    type: "service_account",
+    project_id: "ytmusic-2e8f3",
+    private_key_id: "448ed1ac156db4fc761bdc08404bb5d1480126d4",
+    private_key:
+      "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC/SdYhGpBseX2v\nlYBobJlWTqtwpJReUo3JTJyrfux9LJa5SL1NGlWlwSgXrzxWMOioN/60F7D+sIaY\nWTGNa8KSFoERoS2nX04zbXQk2tNFDcQDA4VdA/bDZGTxgXnaMNnwlIJC4nXDJtS2\n8yE+Kk/9x93TEfpgTeO4RTk2/wfpL+6/ItCNQybMoqRcAlDh3k5dRw8A/HCTuE73\njHvyNYygJy2qdUySVAdXzW7RPe88pnucs/bGRr6BbYUrm/pQO07z8BzQLjyNCVCp\niKh+gTOl1svdqjzWcey+AAp8TyqmIcQeYBvqazjfn+yevNBLkMoGXETLYEnkqSaj\nxC8FebcpAgMBAAECggEAFub5tqvuB7bCCBAvuBDsiOtRVmK2Ctb6d9Pu3A+Ns+zv\nPM7LL1yMTZSjPrax1CX17RILMje17sBm1P2005hHyuLb4Cb6htP/0mNz6Oe0LMvZ\noHy+7mSHmlw+Q7X7R1ba+RVmxShE7jELfb39SGqbeiiAVAGOhxI8Rfcvwvhk05O/\nFGPJd3XX/prMFqRIoy30Vr0wVN84JfHSbVM4sx9h5ofbG8dGBJr34YEF18PZhl1m\n1qaougHXjeyi9TaiajRS1zJ36HLGC+YEEAoxxxW9csXMXvphg0JVeAvvArin38nn\nq3ks4KjmxfPHz84WvKzW18SYQCcctR9p2PDddmd++wKBgQDg1cRI4pRyvokxjWy3\nM005Gi+LmkuwEEScJEbQIUGbI9XSWXe/Nr+l4at3NEDBINZWEAr1el+fompmWHEH\nzSDLCnL+YhghVLBChe3PJZ/VUSO6P+SdcGxyHumn0xnycy75CZTzbTZW1V3dised\nJ0UXlgPSADKda259NyJ96gY6UwKBgQDZzayTeCJ2Pyz8MnTuvTZ64sM87U2/akgt\n+9JJ2GvsuZ0cGV3voZhxbsuDaAOt9oYgwHAPc2T1BQPoQ0SJybLP4YzwZb6WVCjV\n0yQH8b+638awTNnqlKH2U6zz26RsE4EPc/f9vPLdza+kHFy8rzb6mqWsb42AOZq/\nE5JtDpCxEwKBgQCMgYrU8aRLwP8D1JnoM0tDMDYeTCKYuNHnslP+pYnWZiKt/fNz\nr8c85za8nA8LonXP+t6eYgd4P4u2wfaBJZQkzzbl+m+SBNbR+9iN57lnGfn13xAD\nw8pB10e19Zr1hT4JrA9FwS6APX8XgC8W6v+mqb1hc3YuIoE+B0Kq5aFWuQKBgQDT\nqyGbk7YSKuWCF1sypWor1PMe5BSaASUyozfEEnMYdW7tXu2+s9Id8yoPg+eHijzh\n2YNOULv9rykT8UPLkNyZUL8S5h5ppFKnM3Ih0lydtVo3/ggOBPK+HKXJvFy3t+DG\nbtLEont4+atHl1S8/p80v1RhF2xyAAmWxuOX3v7ZRwKBgQCnNYZxhFweHEWnWrQw\nx5M2jRa1gs9SFg1/7ictKeRXukKb6shbBiNRuVUADSMnUN1Xfy9HERO9fhfKwV/a\nBHlWesIXRubCH27qC6w+c69dfIQ9uS5Diezormhw+p/T7BmlmKX7DzdjeQdpEI6b\nOrIJg/VUXEJdY/0FcojAyos15A==\n-----END PRIVATE KEY-----\n",
+    client_email:
+      "firebase-adminsdk-ba4ia@ytmusic-2e8f3.iam.gserviceaccount.com",
+    client_id: "107967636075263970979",
+    auth_uri: "https://accounts.google.com/o/oauth2/auth",
+    token_uri: "https://oauth2.googleapis.com/token",
+    auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+    client_x509_cert_url:
+      "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-ba4ia%40ytmusic-2e8f3.iam.gserviceaccount.com",
+    universe_domain: "googleapis.com",
+  }),
+});
+const authenticateToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const idToken = req.headers.authorization?.split(" ")[1]; // Get the ID token from request headers
+    console.log("====================================");
+    console.log(idToken);
+    console.log("====================================");
+    // Verify the ID token
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    res.locals.decodedToken = decodedToken;
+    // Move to the next middleware or route handler
+    next();
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    res.status(401).json({ error: "Unauthorized" });
+  }
+};
 var AppVersion: string = "";
-var APKURL: string = "";
 const router = Router();
-
+router.use(authenticateToken);
 // get All records
 router.get("/", async (req: Request, res: Response) => {
-  const email = req.query.email as string;
+  const decodedToken = res.locals.decodedToken;
 
+  const email = decodedToken.email;
   if (!email) {
     return res.status(400).json({ error: "Email parameter is missing" });
   }
@@ -23,17 +60,13 @@ router.get("/", async (req: Request, res: Response) => {
       "SELECT * FROM users WHERE email = $1",
       [email]
     );
-    console.log(existingUser.rows[0].id);
-    console.log("fethicng this uers data");
 
     const userRecords = await pool.query(
       "SELECT * FROM userrecords WHERE userID = $1",
       [existingUser.rows[0].id]
     );
     console.log(`Send all records for ${email}`);
-    console.log("printing all");
-
-    console.log(userRecords.rows);
+    console.log(userRecords.rows.length);
 
     return res.status(200).send(userRecords.rows);
   } catch (error) {
@@ -44,11 +77,19 @@ router.get("/", async (req: Request, res: Response) => {
 // create user
 router.post("/", async (req: Request, res: Response) => {
   console.log("came to login");
+  const decodedToken = res.locals.decodedToken;
 
+  const email = decodedToken.email;
   try {
-    const { email } = req.body;
     console.log(`email recevied from app is ${email}`);
+    // token verify
+    // console.log(user.stsTokenManager.accessToken);
+    // const decodedToken = await admin
+    //   .auth()
+    //   .verifyIdToken(user.stsTokenManager.accessToken);
+    // console.log(decodedToken);
 
+    // normal
     const existingUser = await pool.query(
       "SELECT * FROM users WHERE email = $1",
       [email]
