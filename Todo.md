@@ -1,0 +1,1 @@
+- Remove service privateKey from code to ENV

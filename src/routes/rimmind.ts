@@ -29,6 +29,10 @@ const authenticateToken = async (
   res: Response,
   next: NextFunction
 ) => {
+  if (req.path === "/getapk" || req.path === "/getver") {
+    // Skip middleware, move to the next middleware or route handler
+    return next();
+  }
   try {
     const idToken = req.headers.authorization?.split(" ")[1]; // Get the ID token from request headers
     console.log("====================================");
