@@ -7,7 +7,7 @@ const app = express();
 // Specify the allowed origins
 const allowedOrigins = [
   "https://rimmind.blazingbane.com",
-  "http://localhost:5173",
+  "http://192.168.1.32:5173",
 ];
 
 const limiter = rateLimit({
@@ -36,8 +36,6 @@ app.use(
 );
 const myMiddleware = (req: Request, res: Response, next: Function) => {
   // Perform some logic or actions here
-  console.log("Inside Middleware");
-  console.log("Proceeding Middleware");
 
   next();
 };

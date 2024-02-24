@@ -44,6 +44,7 @@ const authenticateToken = async (
     req.path === "/getapk" ||
     req.path === "/getver" ||
     req.path === "/setapk" ||
+    req.path === "/sync" ||
     req.path === "/setver"
   ) {
     // Skip middleware, move to the next middleware or route handler
@@ -80,7 +81,6 @@ const authenticateToken = async (
     res.status(401).json({ error: "Unauthorized" });
   }
 };
-var AppVersion: string = "";
 const router = Router();
 router.use(authenticateToken);
 // get All records
@@ -118,14 +118,6 @@ router.post("/", async (req: Request, res: Response) => {
   const email = decodedToken.email;
   try {
     console.log(`email recevied from app is ${email}`);
-    // token verify
-    // console.log(user.stsTokenManager.accessToken);
-    // const decodedToken = await admin
-    //   .auth()
-    //   .verifyIdToken(user.stsTokenManager.accessToken);
-    // console.log(decodedToken);
-
-    // normal
     const existingUser = await pool.query(
       "SELECT * FROM users WHERE email = $1",
       [email]
@@ -297,17 +289,24 @@ router.get("/sync", (req: Request, res: Response) => {
 });
 router.get("/setver", async (req: Request, res: Response) => {
   const ver = req.query.ver as string;
+  console.log("====================================");
+  console.log(ver);
+  console.log("====================================");
   const selectQuery = `
       Select * from Misc;
     `;
   const result2 = await pool.query(selectQuery);
   if (result2.rowCount != null && result2.rowCount > 0) {
+    console.log("updating new version");
+
     const insertQuery = `
           UPDATE misc SET version=$1 WHERE ctid = (SELECT ctid FROM misc LIMIT 1);
         `;
     const result = await pool.query(insertQuery, [ver]);
     console.log(result.rows);
   } else {
+    console.log("Inserting new version");
+
     const insertQuery = `
           INSERT INTO Misc (version)
       VALUES ($1);
@@ -320,13 +319,15 @@ router.get("/setver", async (req: Request, res: Response) => {
 // application version
 router.get("/getver", async (req: Request, res: Response) => {
   const ver = req.query.ver as string;
-  console.log(
-    `Came to check the Appversion - ${ver} with latest version ${AppVersion}`
-  );
+
   const selectQuery = `
       Select * from Misc;
     `;
   const result2 = await pool.query(selectQuery);
+  console.log(result2.rows);
+  console.log(
+    `Came to check the Appversion - ${ver} with latest version ${result2.rows[0].version}`
+  );
   res.send({ status: result2.rows[0].version === ver });
 });
 /**
@@ -336,7 +337,9 @@ router.get("/getver", async (req: Request, res: Response) => {
 
 router.get("/setapk", async (req: Request, res: Response) => {
   const url = req.query.url as string;
-
+  console.log("====================================");
+  console.log(url);
+  console.log("====================================");
   try {
     // Download the APK file
     const response = await axios.get(url, { responseType: "arraybuffer" });
@@ -346,7 +349,9 @@ router.get("/setapk", async (req: Request, res: Response) => {
     const localFilePath = join(__dirname, `rimmind.apk`);
     fs.writeFileSync(localFilePath, Buffer.from(apkData));
 
-    res.send("downloaded the APk file and saved it here -> " + localFilePath);
+    res
+      .status(200)
+      .send("downloaded the APk file and saved it here -> " + localFilePath);
   } catch (error) {
     console.error("Error downloading APK:", error);
     res.status(500).send("Error downloading APK");
@@ -359,13 +364,16 @@ router.get("/getapk", async (req: Request, res: Response) => {
       Select * from Misc;
     `;
   const result2 = await pool.query(selectQuery);
+  console.log("====================================");
+  console.log(result2);
+  console.log("====================================");
   const localFilePath = join(__dirname, `rimmind.apk`);
   console.log(localFilePath);
 
   res.sendFile(localFilePath, {
     headers: {
       "Content-Type": "application/vnd.android.package-archive",
-      "Content-Disposition": `attachment; filename=rimmind_${AppVersion}.apk`,
+      "Content-Disposition": `attachment; filename=rimmind.apk`,
     },
   });
 });
