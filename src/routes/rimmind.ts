@@ -40,7 +40,12 @@ const authenticateToken = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.path === "/getapk" || req.path === "/getver") {
+  if (
+    req.path === "/getapk" ||
+    req.path === "/getver" ||
+    req.path === "/setapk" ||
+    req.path === "/setver"
+  ) {
     // Skip middleware, move to the next middleware or route handler
     return next();
   }
