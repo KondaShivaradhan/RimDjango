@@ -24,6 +24,17 @@ admin.initializeApp({
     universe_domain: "googleapis.com",
   }),
 });
+async function decodeGoogleToken(idToken: string) {
+  try {
+    const response = await axios.get(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error decoding Google token:", error);
+    throw new Error("Failed to decode Google token");
+  }
+}
 const authenticateToken = async (
   req: Request,
   res: Response,
@@ -34,15 +45,29 @@ const authenticateToken = async (
     return next();
   }
   try {
-    const idToken = req.headers.authorization?.split(" ")[1]; // Get the ID token from request headers
-    console.log("====================================");
-    console.log(idToken);
-    console.log("====================================");
-    // Verify the ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    res.locals.decodedToken = decodedToken;
-    // Move to the next middleware or route handler
-    next();
+    const idToken = req.headers.authorization?.split(" ")[1];
+    const platform = req.headers.platform;
+    switch (platform) {
+      case "Mobile":
+        await decodeGoogleToken(idToken ?? "")
+          .then((decodedToken) => {
+            console.log("Decoded Google token:", decodedToken);
+            res.locals.decodedToken = decodedToken;
+            next();
+          })
+          .catch((error) => {
+            console.error("Error:", error.message);
+          });
+        break;
+      case "Web":
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        res.locals.decodedToken = decodedToken;
+        next();
+        break;
+
+      default:
+        break;
+    }
   } catch (error) {
     console.error("Token verification failed:", error);
     res.status(401).json({ error: "Unauthorized" });
