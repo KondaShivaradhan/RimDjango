@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import rimRouter from "./routes/rimmind";
+import excalRouter from "./routes/excali";
 import cors from "cors";
 import { rateLimit } from "express-rate-limit";
 
@@ -8,6 +9,7 @@ const app = express();
 const allowedOrigins = [
   "https://rimmind.blazingbane.com",
   "http://192.168.1.32:5173",
+  "http://192.168.1.6",
 ];
 
 const limiter = rateLimit({
@@ -45,6 +47,7 @@ app.get("/", myMiddleware, (req: Request, res: Response) => {
   res.send("html");
 });
 app.use("/rim", myMiddleware, rimRouter);
+app.use("/excali", myMiddleware, excalRouter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).send("Wrong URL");

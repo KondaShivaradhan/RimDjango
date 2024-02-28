@@ -26,6 +26,9 @@ admin.initializeApp({
 });
 async function decodeGoogleToken(idToken: string) {
   try {
+    console.log("Came to Decode this token");
+    console.log(idToken);
+
     const response = await axios.get(
       `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`
     );
