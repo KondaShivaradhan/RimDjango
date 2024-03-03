@@ -3,6 +3,7 @@ import rimRouter from "./routes/rimmind";
 import excalRouter from "./routes/excali";
 import cors from "cors";
 import { rateLimit } from "express-rate-limit";
+import { log } from "console";
 
 const app = express();
 // Specify the allowed origins
@@ -19,29 +20,44 @@ const limiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
   // store: ... , // Use an external store for consistency across multiple server instances.
 });
+const myMiddleware = (req: Request, res: Response, next: Function) => {
+  // Perform some logic or actions here
 
-// Apply the rate limiting middleware to all requests.
+  next();
+};
 app.use(limiter);
-// Enable CORS with specific origins
+app.use(express.json());
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        origin.startsWith("chrome-extension")
+      ) {
+        console.log("Valid cors");
+
         callback(null, true);
       } else {
+        console.log(origin);
         callback(new Error("Not allowed by CORS"));
+        app.use((req: Request, res: Response, next: NextFunction) => {
+          res.status(404).send("Wrong URL");
+        });
+
+        app.use(
+          (err: Error, req: Request, res: Response, next: NextFunction) => {
+            console.error(err.stack);
+            res.status(500).json({ error: "Something went wrong!" });
+          }
+        );
       }
     },
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   })
 );
-const myMiddleware = (req: Request, res: Response, next: Function) => {
-  // Perform some logic or actions here
-
-  next();
-};
-app.use(express.json());
 
 app.get("/", myMiddleware, (req: Request, res: Response) => {
   res.send("html");
