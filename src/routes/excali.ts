@@ -64,7 +64,7 @@ router.post("/signup", async (req: Request, res: Response) => {
 });
 router.post("/login", async (req: Request, res: Response) => {
   const { email, pass } = req.body;
-  console.log("Ex Came to login with user" + email + " and pass " + pass);
+  console.log("Ex Came to login with user " + email + " and pass " + pass);
   try {
     await db
       .collection("User")
@@ -76,12 +76,14 @@ router.post("/login", async (req: Request, res: Response) => {
           res.send({ status: "No user" });
         } else {
           const data = querySnapshot.data() as UserFB;
-          if (data.pass === hashPassword(pass, email)) {
-            res.send({ status: "Auth Passed", data });
+          console.log(querySnapshot.data());
+          if (querySnapshot.data() && email === querySnapshot.id &&data.pass === hashPassword(pass, email)) {
+            console.log(querySnapshot.id, " => ", data);
+            res.status(200).send({ status: "Auth Passed", data });
           } else {
-            res.send({ status: "Auth Failed" });
+            console.log("Auth failed");
+            res.status(401).send({ status: "Auth Failed" });
           }
-          console.log(querySnapshot.id, " => ", data);
         }
       });
   } catch (error) {

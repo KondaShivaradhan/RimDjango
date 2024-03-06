@@ -341,48 +341,7 @@ router.get("/getver", async (req: Request, res: Response) => {
  * Fetches Appversion
  */
 
-router.get("/setapk", async (req: Request, res: Response) => {
-  const url = req.query.url as string;
-  console.log("====================================");
-  console.log(url);
-  console.log("====================================");
-  try {
-    // Download the APK file
-    const response = await axios.get(url, { responseType: "arraybuffer" });
-    const apkData = response.data;
 
-    // Save the APK file to a local path with the version-appended name
-    const localFilePath = join(__dirname, `rimmind.apk`);
-    fs.writeFileSync(localFilePath, Buffer.from(apkData));
-
-    res
-      .status(200)
-      .send("downloaded the APk file and saved it here -> " + localFilePath);
-  } catch (error) {
-    console.error("Error downloading APK:", error);
-    res.status(500).send("Error downloading APK");
-  }
-});
-
-router.get("/getapk", async (req: Request, res: Response) => {
-  console.log(`Came to send the APK URL`);
-  const selectQuery = `
-      Select * from Misc;
-    `;
-  const result2 = await pool.query(selectQuery);
-  console.log("====================================");
-  console.log(result2);
-  console.log("====================================");
-  const localFilePath = join(__dirname, `rimmind.apk`);
-  console.log(localFilePath);
-
-  res.sendFile(localFilePath, {
-    headers: {
-      "Content-Type": "application/vnd.android.package-archive",
-      "Content-Disposition": `attachment; filename=rimmind.apk`,
-    },
-  });
-});
 router.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).send("Wrong URL");
 });
