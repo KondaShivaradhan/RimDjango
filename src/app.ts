@@ -10,7 +10,7 @@ const app = express();
 const allowedOrigins = [
   "https://rimmind.blazingbane.com",
   "http://192.168.1.32:5173",
-  "http://192.168.1.6",
+  "http://192.168.1.6:5173",
 ];
 
 const limiter = rateLimit({

@@ -24,8 +24,7 @@ admin.initializeApp(
         "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-ba4ia%40ytmusic-2e8f3.iam.gserviceaccount.com",
       universe_domain: "googleapis.com",
     }),
-  },
-  "rimmind"
+  }
 );
 async function decodeGoogleToken(idToken: string) {
   try {
