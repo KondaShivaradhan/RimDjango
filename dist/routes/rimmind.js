@@ -17,6 +17,7 @@ const postdb_1 = __importDefault(require("../postdb"));
 const CloudWrite_1 = require("../Misc/Children/CloudWrite");
 const child_process_1 = require("child_process");
 const axios_1 = __importDefault(require("axios"));
+const GoogleVerfication_1 = require("../Misc/GoogleVerfication");
 const admin = require("firebase-admin");
 admin.initializeApp({
     credential: admin.credential.cert({
@@ -38,6 +39,7 @@ function decodeGoogleToken(idToken) {
         try {
             console.log("Came to Decode this token");
             console.log(idToken);
+            yield (0, GoogleVerfication_1.verify)(idToken);
             const response = yield axios_1.default.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
             return response.data;
         }
@@ -62,15 +64,18 @@ const authenticateToken = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         const platform = req.headers.platform;
         switch (platform) {
             case "Mobile":
-                yield decodeGoogleToken(idToken !== null && idToken !== void 0 ? idToken : "")
-                    .then((decodedToken) => {
-                    console.log("Decoded Google token:", decodedToken);
-                    res.locals.decodedToken = decodedToken;
-                    next();
-                })
-                    .catch((error) => {
-                    console.error("Error:", error.message);
-                });
+                if (idToken)
+                    yield decodeGoogleToken(idToken)
+                        .then((decodedToken) => {
+                        console.log("Decoded Google token:", decodedToken);
+                        res.locals.decodedToken = decodedToken;
+                        next();
+                    })
+                        .catch((error) => {
+                        console.error("Error:", error.message);
+                    });
+                else
+                    res.status(401).json({ error: "Not valid Token" });
                 break;
             case "Web":
                 const decodedToken = yield admin.auth().verifyIdToken(idToken);
