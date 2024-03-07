@@ -16,7 +16,7 @@ function verify(token) {
     return __awaiter(this, void 0, void 0, function* () {
         const ticket = yield client.verifyIdToken({
             idToken: token,
-            audience: "50096351635-sblfrcuu70p1a7k7ld629q3565kvoije.apps.googleusercontent.com", // Specify the CLIENT_ID of the app that accesses the backend
+            audience: "50096351635-0vu6ql2llffp5ldpl4fv82heoshmf6c1.apps.googleusercontent.com", // Specify the CLIENT_ID of the app that accesses the backend
             // Or, if multiple clients access the backend:
             //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
         });
