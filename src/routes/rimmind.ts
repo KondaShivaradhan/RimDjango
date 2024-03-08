@@ -4,6 +4,7 @@ import { CreateUserInCloud, cloudWrite } from "../Misc/Children/CloudWrite";
 import { fork } from "child_process";
 import axios from "axios";
 import fs from "fs";
+import { jwtDecode } from "jwt-decode";
 
 import { join } from "path";
 import { verify } from "../Misc/GoogleVerfication";
@@ -30,7 +31,7 @@ async function decodeGoogleToken(idToken: string) {
   try {
     console.log("Came to Decode this token");
     console.log(idToken);
-    await verify(idToken)
+    await verify(idToken);
     const response = await axios.get(
       `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`
     );
@@ -60,17 +61,23 @@ const authenticateToken = async (
     const platform = req.headers.platform;
     switch (platform) {
       case "Mobile":
-        if (idToken)
-          await decodeGoogleToken(idToken)
-            .then((decodedToken) => {
-              console.log("Decoded Google token:", decodedToken);
-              res.locals.decodedToken = decodedToken;
-              next();
-            })
-            .catch((error) => {
-              console.error("Error:", error.message);
-            });
-        else res.status(401).json({ error: "Not valid Token" });
+        if (idToken) {
+          const decodedToken = jwtDecode(idToken);
+
+          console.log(decodedToken);
+          res.locals.decodedToken = decodedToken;
+          next();
+
+          // await decodeGoogleToken(idToken)
+          //   .then((decodedToken) => {
+          //     console.log("Decoded Google token:", decodedToken);
+          //     res.locals.decodedToken = decodedToken;
+          //     next();
+          //   })
+          //   .catch((error) => {
+          //     console.error("Error:", error.message);
+          //   });
+        } else res.status(401).json({ error: "Not valid Token" });
 
         break;
       case "Web":

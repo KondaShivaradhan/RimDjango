@@ -17,6 +17,7 @@ const postdb_1 = __importDefault(require("../postdb"));
 const CloudWrite_1 = require("../Misc/Children/CloudWrite");
 const child_process_1 = require("child_process");
 const axios_1 = __importDefault(require("axios"));
+const jwt_decode_1 = require("jwt-decode");
 const GoogleVerfication_1 = require("../Misc/GoogleVerfication");
 const admin = require("firebase-admin");
 admin.initializeApp({
@@ -64,16 +65,21 @@ const authenticateToken = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         const platform = req.headers.platform;
         switch (platform) {
             case "Mobile":
-                if (idToken)
-                    yield decodeGoogleToken(idToken)
-                        .then((decodedToken) => {
-                        console.log("Decoded Google token:", decodedToken);
-                        res.locals.decodedToken = decodedToken;
-                        next();
-                    })
-                        .catch((error) => {
-                        console.error("Error:", error.message);
-                    });
+                if (idToken) {
+                    const decodedToken = (0, jwt_decode_1.jwtDecode)(idToken);
+                    console.log(decodedToken);
+                    res.locals.decodedToken = decodedToken;
+                    next();
+                    // await decodeGoogleToken(idToken)
+                    //   .then((decodedToken) => {
+                    //     console.log("Decoded Google token:", decodedToken);
+                    //     res.locals.decodedToken = decodedToken;
+                    //     next();
+                    //   })
+                    //   .catch((error) => {
+                    //     console.error("Error:", error.message);
+                    //   });
+                }
                 else
                     res.status(401).json({ error: "Not valid Token" });
                 break;
