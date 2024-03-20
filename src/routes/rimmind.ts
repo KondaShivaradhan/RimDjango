@@ -51,6 +51,7 @@ const authenticateToken = async (
     req.path === "/getver" ||
     req.path === "/setapk" ||
     req.path === "/sync" ||
+    req.path==="/stats"||
     req.path === "/setver"
   ) {
     // Skip middleware, move to the next middleware or route handler
@@ -97,6 +98,27 @@ const authenticateToken = async (
 };
 const router = Router();
 router.use(authenticateToken);
+// get stats
+router.get("/stats", async (req: Request, res: Response) => {
+
+  
+  try {
+   const userRecordsCount = await pool.query(
+    "SELECT COUNT(*) FROM userrecords"
+    );
+  
+    const userCount = await pool.query(
+      "SELECT COUNT(*) FROM users"
+      );
+    console.log(`Send stats records for `);
+    console.log(userRecordsCount,userCount);
+
+    return res.status(200).send({userRecordsCount,userCount});
+  } catch (error) {
+    console.log(error);
+  }
+  res.json({ message: `Something wrong!` });
+});
 // get All records
 router.get("/", async (req: Request, res: Response) => {
   const decodedToken = res.locals.decodedToken;
