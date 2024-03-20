@@ -111,9 +111,13 @@ router.get("/stats", async (req: Request, res: Response) => {
       "SELECT COUNT(*) FROM users"
       );
     console.log(`Send stats records for `);
-    console.log(userRecordsCount,userCount);
-
-    return res.status(200).send({userRecordsCount,userCount});
+      const final = {
+       Rcount: userRecordsCount.rows,
+       UCount :userCount.rows
+      }
+      console.log(final);
+      
+    return res.status(200).send(final);
   } catch (error) {
     console.log(error);
   }
