@@ -23,6 +23,7 @@ function deleteTables() {
             // Execute SQL queries to drop tables
             yield client.query("DROP TABLE IF EXISTS userrecords;");
             yield client.query("DROP TABLE IF EXISTS users;");
+            yield client.query("DROP TABLE IF EXISTS misc;");
             console.log("Tables deleted successfully");
         }
         catch (err) {

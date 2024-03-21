@@ -16,6 +16,7 @@ async function deleteTables() {
     // Execute SQL queries to drop tables
     await client.query("DROP TABLE IF EXISTS userrecords;");
     await client.query("DROP TABLE IF EXISTS users;");
+    await client.query("DROP TABLE IF EXISTS misc;");
 
     console.log("Tables deleted successfully");
   } catch (err) {

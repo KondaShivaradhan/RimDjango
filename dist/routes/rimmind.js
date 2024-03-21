@@ -56,6 +56,7 @@ const authenticateToken = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         req.path === "/getver" ||
         req.path === "/setapk" ||
         req.path === "/sync" ||
+        req.path === "/stats" ||
         req.path === "/setver") {
         // Skip middleware, move to the next middleware or route handler
         return next();
@@ -101,6 +102,24 @@ const authenticateToken = (req, res, next) => __awaiter(void 0, void 0, void 0, 
 });
 const router = (0, express_1.Router)();
 router.use(authenticateToken);
+// get stats
+router.get("/stats", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userRecordsCount = yield postdb_1.default.query("SELECT COUNT(*) FROM userrecords");
+        const userCount = yield postdb_1.default.query("SELECT COUNT(*) FROM users");
+        console.log(`Send stats records for `);
+        const final = {
+            Rcount: userRecordsCount.rows,
+            UCount: userCount.rows
+        };
+        console.log(final);
+        return res.status(200).send(final);
+    }
+    catch (error) {
+        console.log(error);
+    }
+    res.json({ message: `Something wrong!` });
+}));
 // get All records
 router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const decodedToken = res.locals.decodedToken;
