@@ -25,6 +25,9 @@ const comparePasswords = (password, hashedPassword, salt) => {
     const newlyHashedPassword = hashPassword(password, salt);
     return hashedPassword === newlyHashedPassword;
 };
+router.get('/', (req, res) => {
+    res.send('Exacli active');
+});
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     console.log("came to signup with " + email, password);
