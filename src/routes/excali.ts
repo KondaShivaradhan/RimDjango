@@ -33,7 +33,8 @@ router.post("/signup", async (req: Request, res: Response) => {
       .doc(email)
       .get()
       .then(async (querySnapshot: any) => {
-        if (querySnapshot.empty) {
+
+        if (querySnapshot.data() == undefined) {
           console.log("No User found Creating");
           try {
             // Assuming `email` and `pass` are provided as variables
@@ -55,7 +56,8 @@ router.post("/signup", async (req: Request, res: Response) => {
             res.status(501).send("Something went wrong");
           }
         } else {
-          res.send({
+          console.log(querySnapshot.data());
+          res.status(409).send({
             status: "failed",
             response: "User already exists",
           });

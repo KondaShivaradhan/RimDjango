@@ -37,7 +37,7 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
             .doc(email)
             .get()
             .then((querySnapshot) => __awaiter(void 0, void 0, void 0, function* () {
-            if (querySnapshot.empty) {
+            if (querySnapshot.data() == undefined) {
                 console.log("No User found Creating");
                 try {
                     // Assuming `email` and `pass` are provided as variables
@@ -61,7 +61,8 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
                 }
             }
             else {
-                res.send({
+                console.log(querySnapshot.data());
+                res.status(409).send({
                     status: "failed",
                     response: "User already exists",
                 });

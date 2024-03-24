@@ -28,6 +28,7 @@ const myMiddleware = (req, res, next) => {
 };
 app.use(limiter);
 app.use(express_1.default.json());
+app.set('trust proxy', true);
 app.use((0, cors_1.default)({
     origin: function (origin, callback) {
         if (!origin ||
