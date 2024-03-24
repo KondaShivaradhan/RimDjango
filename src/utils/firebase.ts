@@ -74,6 +74,5 @@ export interface UserFB {
 
 export interface Board {
   name: string;
-  elements: Object;
-  appState: Object;
+  canvasData: any;
 }
